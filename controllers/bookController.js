@@ -165,8 +165,17 @@ exports.book_create_post = [
 
 
 // Display book delete form on GET.
-exports.book_delete_get = function(req, res) {
-    res.send('NOT IMPLEMENTED: Book delete GET');
+exports.book_delete_get = function(req, res, next) {
+    async.parallel({
+        book: function (callback) {
+            Book.findById(req.params.id).exec(callback);
+        },
+        bookinstances: function (callback) {
+            BookInstance.find({'book': req.params.id }).exec(callback);
+        }
+    }, function (err, results) {
+        res.render('book_delete', {title: 'Delete Book', book: results.book, bookinstances: results.bookinstances})
+    })
 };
 
 // Handle book delete on POST.
